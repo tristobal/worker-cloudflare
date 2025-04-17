@@ -24,9 +24,13 @@ This project uses `wrangler` for managing and deploying the Cloudflare Worker. T
     RECORD_NAME = "your.domain.com" # Replace with the DNS A record name you want to update
     NO_IP_HOSTNAME = "your-ddns-hostname.example.com" # Replace with the hostname you are using for dynamic DNS
     CF_API_TOKEN = "YOUR_CLOUDFLARE_API_TOKEN" # Replace with your Cloudflare API token
-    
+
     [triggers]
-    crons = ["*/10 * * * *"] # Adjusted as needed. Use cron.guru. 
+    crons = ["*/10 * * * *"] # Configure the cron schedule (e.g., every 10 minutes)
+
+    [observability]
+    enabled = true
+    head_sampling_rate = 0.1 # 10% of requests are logged for tracing
     ```
 
     * **`name`**: Choose a unique name for your Cloudflare Worker.
@@ -37,6 +41,10 @@ This project uses `wrangler` for managing and deploying the Cloudflare Worker. T
         * **Zone:** Read
         * **DNS:** Edit
         You can create a token in the Cloudflare dashboard under "API Tokens".
+    * **`[triggers]`**: This section defines the cron schedule for your Worker. The example above sets it to run every 10 minutes.
+    * **`[observability]`**: This section enables observability features, including logging.
+        * **`enabled = true`**: Activates observability.
+        * **`head_sampling_rate = 0.1`**: Sets the sampling rate for request tracing (optional).
 
 3.  **Save the `wrangler.toml` file.**
 
