@@ -5,7 +5,7 @@ export default {
      * @param {ExecutionContext} ctx
      */
     async scheduled(event, env, ctx) {
-        console.log(`trigger fired at ${event.cron}: ${wasSuccessful}`);
+        console.log(`trigger fired at ${event.cron}`);
         ctx.waitUntil(handleScheduled(event, env));
     },
 };
