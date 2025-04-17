@@ -1,0 +1,14 @@
+# wrangler.toml
+name = "nombre-exacto-de-tu-worker-existente" # ¡IMPORTANTE: Usa el nombre del worker que quieres reemplazar!
+main = "src/index.js"
+compatibility_date = "2024-04-05" # Usa una fecha reciente
+
+# Variables de entorno (alternativamente puedes usar secrets para todo)
+[vars]
+ZONE_ID = "TU_ZONE_ID_DE_CLOUDFLARE" # El ID de tu zona (ej: midominio.com)
+RECORD_NAME = "midominio.com"      # El nombre del registro A que quieres actualizar (el raíz)
+NO_IP_HOSTNAME = "tu-hostname.ddns.net" # Tu hostname de No-IP
+
+# Disparador Cron (ej: cada 5 minutos)
+[triggers]
+crons = ["*/5 * * * *"]
