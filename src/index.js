@@ -6,12 +6,13 @@ export default {
      */
     async scheduled(event, env, ctx) {
         console.log(`trigger fired at ${event.cron}`);
-        ctx.waitUntil(handleScheduled(event, env));
+        ctx.waitUntil(handleScheduled(env));
     },
 };
 
-async function handleScheduled(event, env) {
+async function handleScheduled(env) {
 
+    console.log("handleScheduled")
     const zoneId = env.ZONE_ID;
     const recordName = env.RECORD_NAME;
     const noIpHostname = env.NO_IP_HOSTNAME;
@@ -44,7 +45,7 @@ async function handleScheduled(event, env) {
             name: recordName,
             type: recordType
         });
-        const listResponse = await fetch(`<span class="math-inline">\{cfApiBase\}?</span>{params.toString()}`, {
+        const listResponse = await fetch(`${cfApiBase}?${params.toString()}`, {
             headers
         });
 
@@ -80,7 +81,7 @@ async function handleScheduled(event, env) {
                 proxied: dnsRecord.proxied
             };
 
-            const updateResponse = await fetch(`<span class="math-inline">\{cfApiBase\}/</span>{recordId}`, {
+            const updateResponse = await fetch(`${cfApiBase}/${recordId}`, {
                 method: 'PUT',
                 headers: headers,
                 body: JSON.stringify(updateData)
@@ -110,12 +111,6 @@ async function handleScheduled(event, env) {
     }
 }
 
-/**
- * Resolve hostname using DNS over HTTPS on Cloudflare
- * @param {string} hostname 
- * @param {string} type
- * @returns {Promise<string|null>}
- */
 /**
  * Resolve hostname using DNS over HTTPS on Cloudflare
  * @param {string} hostname
