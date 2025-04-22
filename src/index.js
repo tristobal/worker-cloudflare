@@ -116,35 +116,57 @@ async function handleScheduled(event, env) {
  * @param {string} type
  * @returns {Promise<string|null>}
  */
+/**
+ * Resolve hostname using DNS over HTTPS on Cloudflare
+ * @param {string} hostname
+ * @param {string} type
+ * @returns {Promise<string|null>}
+ */
 async function resolveHostname(hostname, type = 'A') {
-    const dohUrl = `https://cloudflare-dns.com/dns-query?name=<span class="math-inline">\{encodeURIComponent\(hostname\)\}&type\=</span>{type}`;
+    console.log('resolveHostname inputs:', hostname, type);
+    const dohUrl = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=${type}`;
+    console.log('Generated DoH URL:', dohUrl);
+
     try {
         const response = await fetch(dohUrl, {
             headers: {
                 'accept': 'application/dns-json'
             }
         });
+
+        console.log('DoH Response Status:', response.status);
+
         if (!response.ok) {
             console.error(`DoH Error: ${response.status}`);
+            const errorBody = await response.text();
+            console.error("DoH Error Body:", errorBody);
             return null;
         }
+
         const data = await response.json();
+        console.log('DoH Response Data:', JSON.stringify(data, null, 2));
+
         // Status codes: 0=NOERROR, 1=FORMERR, 2=SERVFAIL, 3=NXDOMAIN, etc.
         if (data.Status === 0 && data.Answer && data.Answer.length > 0) {
             for (const answer of data.Answer) {
                 // [1:A, 22:AAAA]
                 if (answer.type === (type === 'A' ? 1 : 28)) {
+                    console.log(`Resolved IP for ${hostname}: ${answer.data}`);
                     return answer.data;
                 }
             }
             console.warn(`Records ${type} not found on DoH response ${hostname}`);
             return null;
         } else {
-            console.warn(`DoH response not successful or not response for ${hostname}. Status: ${data.Status}`);
+            console.warn(`DoH response not successful or no answer section for ${hostname}. Status: ${data.Status}`);
+            console.log("DoH full response (no answer/status != 0):", JSON.stringify(data, null, 2));
             return null;
         }
     } catch (error) {
-        console.error(`DoH error: ${error}`);
+        console.error(`DoH fetch failed: ${error}`);
+        if (error.cause) {
+            console.error("DoH fetch error cause:", error.cause);
+        }
         return null;
     }
 }
